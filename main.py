@@ -5,11 +5,11 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 file_names = [
     # 'a_an_example.in',
-    # 'b_better_start_small.in',
+     'b_better_start_small.in',
     # 'c_collaboration.in',
     # 'd_dense_schedule.in',
     # 'e_exceptional_skills.in',
-    'f_find_great_mentors.in',
+    # 'f_find_great_mentors.in',
 ]
 input_files = [os.path.join(dir_path, 'input', '{}.txt'.format(file_name)) for file_name in file_names]
 output_files = [os.path.join(dir_path, 'output', '{}.out'.format(file_name)) for file_name in file_names]
@@ -20,7 +20,7 @@ def sign(value):
 
 
 def weight(day, deadline, score, duration):
-    return score - sign(deadline - (day + duration))
+    return score
 
 
 def get_scores_at_day(day, projects):
@@ -68,7 +68,7 @@ def process(input_file_path, output_file_path):
                 skill, skill_level = lines[line_index].split(' ')
                 projects[name]['skills_needed'].append((skill, int(skill_level)))
         for name in contributors_by_skill.keys():
-            contributors_by_skill[name] = list(map(lambda item: item[0], sorted(contributors_by_skill[name], key=lambda x: x[1], reverse=True))) # od najvacsieho
+            contributors_by_skill[name] = list(map(lambda item: item[0], sorted(contributors_by_skill[name], key=lambda x: x[1], reverse=False))) # od najvacsieho
         # print(dict(contributors))
         # print(dict(projects))
     success_projects = {}
@@ -96,20 +96,27 @@ def process(input_file_path, output_file_path):
             for skill_name, skill_level in project['skills_needed']:
                 skill_was_assigned = False
                 for name in contributors_by_skill[skill_name]:
-                # for name, contributor_data in contributors.items():
+                    # for name, contributor_data in contributors.items():
                     contributor_data = contributors[name]
                     is_available = day_number > contributor_data['delay']
                     if not is_available:
                         continue
                     skills = contributor_data['skills']
                     has_skill = skill_name in skills and skills[skill_name] >= skill_level
-                    has_mentor = (skill_name in skills and skills[skill_name] == (skill_level - 1)) and skill_level in project_skills[skill]
+                    mentor = None
+                    for skill_level_mentor, mentor_name in project_skills[skill]:
+                        if skill_level <= skill_level_mentor:
+                            mentor = name
+                    # has_mentor = (skill_name in skills and skills[skill_name] == (skill_level - 1)) and mentor
+                    has_mentor = False
                     not_in_project = name not in project_contributors
                     if (has_skill or has_mentor) and not_in_project and is_available:
                         # is good for job
                         skill_was_assigned = True
                         project_contributors.append(name)
-                        project_skills[skill].append(skill_level)
+                        project_skills[skill].append((skill_level, name))
+                        # if has_mentor and mentor in upgrade_skill_to_contributor:
+                        #     del upgrade_skill_to_contributor[mentor]
                         if (skills[skill_name] == skill_level or skills[skill_name] + 1 == skill_level) and skills[skill_name] < 10:
                             upgrade_skill_to_contributor[name] = skill_name
                         break
