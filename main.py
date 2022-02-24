@@ -39,10 +39,6 @@ def get_scores_at_day(day, projects):
     return sorted(projects_ord, key=lambda p: p[1])
 
 
-def get_score_at_day(day_number, projects):
-    return projects
-
-
 def process(input_file_path, output_file_path):
     with open(input_file_path) as input_file:
         lines = [line.strip() for line in input_file.readlines()]
@@ -80,7 +76,7 @@ def process(input_file_path, output_file_path):
     day_number = 0
     while is_possible_continue:
         ids_to_delete = []
-        projects_of_the_day = get_score_at_day(day_number, projects)
+        projects_of_the_day = get_scores_at_day(day_number, projects)
 
         can_all_do_it = True
         for name, contributor_data in contributors.items():
