@@ -1,8 +1,5 @@
 import os
 from collections import Counter, OrderedDict, defaultdict
-import numpy as np
-import pandas as pd
-from tqdm import tqdm
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -89,7 +86,7 @@ def process(input_file_path, output_file_path):
             if not is_available:
                 can_all_do_it = False
         print(day_number)
-        print(len(projects_of_the_day))
+        # print(len(projects_of_the_day))
         for project_of_the_day in projects_of_the_day:
             project_name, score = project_of_the_day
             project = projects[project_name]
@@ -136,13 +133,13 @@ def process(input_file_path, output_file_path):
 
         if len(ids_to_delete) == 0:
             delays = [item['delay'] for item in contributors.values() if item['delay'] >= day_number]
-            print(f'delays {delays}')
+            # print(f'delays {delays}')
             if not delays:
                 is_possible_continue = False
             min_delay = min(delays)
             day_number = max(min_delay, day_number + 1)
         else:
-            print(f'ids_to_delete {ids_to_delete}')
+            # print(f'ids_to_delete {ids_to_delete}')
             day_number += 1
 
         for id_to_delete in ids_to_delete:
