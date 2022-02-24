@@ -2,14 +2,15 @@ import os
 from collections import Counter, OrderedDict, defaultdict
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 file_names = [
-    'a_an_example.in',
-    'b_better_start_small.in',
+    # 'a_an_example.in',
+    # 'b_better_start_small.in',
     'c_collaboration.in',
-    'd_dense_schedule.in',
+    # 'd_dense_schedule.in',
     'e_exceptional_skills.in',
     'f_find_great_mentors.in',
 ]
@@ -17,11 +18,36 @@ input_files = [os.path.join(dir_path, 'input', '{}.txt'.format(file_name)) for f
 output_files = [os.path.join(dir_path, 'output', '{}.out'.format(file_name)) for file_name in file_names]
 
 
+def sign(value):
+    return value if value > 0 else 0
+
+
+def weight(day, deadline, score, duration):
+    return score - sign(deadline - (day + duration))
+
+
+def get_scores_at_day(day, projects):
+    projects_ord = []
+    for project_name, project in projects:
+        score = weight(
+            project_name,
+            deadline=project['deadline'],
+            score=project['score'],
+            duration=project['num_days']
+        )
+        projects_ord.append((project_name, score))
+    return sorted(projects_ord, key=lambda p: p[1])
+
+
+def get_score_at_day(day_number, projects):
+    return projects
+
+
 def process(input_file_path, output_file_path):
     with open(input_file_path) as input_file:
         lines = [line.strip() for line in input_file.readlines()]
         num_contrib, num_projects = map(int, lines[0].split(' '))
-        contributors = defaultdict(dict)
+        contributors = defaultdict(lambda: defaultdict(dict))
         projects = {}
         line_index = 0
         for i in range(num_contrib):
@@ -30,7 +56,8 @@ def process(input_file_path, output_file_path):
             for j in range(int(num_skills)):
                 line_index += 1
                 skill, skill_level = lines[line_index].split(' ')
-                contributors[name][skill] = int(skill_level)
+                contributors[name]['skills'][skill] = int(skill_level)
+                contributors[name]['delay'] = 0
         for i in range(num_projects):
             line_index += 1
             name, num_days, score, deadline, num_roles = lines[line_index].split(' ')
@@ -48,16 +75,52 @@ def process(input_file_path, output_file_path):
         # print(dict(contributors))
         # print(dict(projects))
     success_projects = {}
-    for project_name, project in projects.items():
-        project_contributors = []
-        for skill_name, skill_level in project['skills_needed']:
-            for name, skills in contributors.items():
-                if skill_name in skills and skills[skill_name] >= skill_level and name not in project_contributors:
-                    # is good for job
-                    project_contributors.append(name)
-                    break
-        if len(project_contributors) == len(project['skills_needed']):
-            success_projects[project_name] = project_contributors
+
+    is_possible_continue = True
+    day_number = 0
+    while is_possible_continue:
+        ids_to_delete = []
+        projects_of_the_day = get_score_at_day(day_number, projects)
+
+        can_all_do_it = True
+        for name, contributor_data in contributors.items():
+            is_available = day_number > contributor_data['delay']
+            if not is_available:
+                can_all_do_it = False
+        print(day_number)
+        for project_name, project in tqdm(projects_of_the_day.items(), mininterval=5):
+            project_contributors = []
+            upgrade_skill_to_contributor = {}
+            for skill_name, skill_level in project['skills_needed']:
+                for name, contributor_data in contributors.items():
+                    skills = contributor_data['skills']
+                    has_skill = skill_name in skills and skills[skill_name] >= skill_level
+                    not_in_project = name not in project_contributors
+                    is_available = day_number > contributor_data['delay']
+                    if has_skill and not_in_project and is_available:
+                        # is good for job
+                        project_contributors.append(name)
+                        if skills[skill_name] == skill_level and skills[skill_name] < 10:
+                            upgrade_skill_to_contributor[name] = skill_name
+                        break
+
+            if len(project_contributors) == len(project['skills_needed']):
+                success_projects[project_name] = project_contributors
+                for contributor_name in project_contributors:
+                    contributors[contributor_name]['delay'] += project['num_days']
+                for contributor_name, skill_name in upgrade_skill_to_contributor.items():
+                    contributors[contributor_name]['skills'][skill_name] += 1
+                ids_to_delete.append(project_name)
+
+        if len(ids_to_delete) == 0 and can_all_do_it:
+            is_possible_continue = False
+
+        if len(projects_of_the_day) == 0:
+            is_possible_continue = False
+
+        for id_to_delete in ids_to_delete:
+            del projects[id_to_delete]
+        day_number += 1
 
     output_lines = []
     output_lines.append(f'{len(success_projects)}\n')
