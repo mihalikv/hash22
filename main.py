@@ -139,7 +139,7 @@ def process(input_file_path, output_file_path):
             min_delay = min(delays)
             day_number = max(min_delay, day_number + 1)
         else:
-            # print(f'ids_to_delete {ids_to_delete}')
+            print(f'ids_to_delete {ids_to_delete}')
             day_number += 1
 
         for id_to_delete in ids_to_delete:
