@@ -11,8 +11,8 @@ file_names = [
     # 'b_better_start_small.in',
     'c_collaboration.in',
     # 'd_dense_schedule.in',
-    'e_exceptional_skills.in',
-    'f_find_great_mentors.in',
+    # 'e_exceptional_skills.in',
+    # 'f_find_great_mentors.in',
 ]
 input_files = [os.path.join(dir_path, 'input', '{}.txt'.format(file_name)) for file_name in file_names]
 output_files = [os.path.join(dir_path, 'output', '{}.out'.format(file_name)) for file_name in file_names]
@@ -28,15 +28,15 @@ def weight(day, deadline, score, duration):
 
 def get_scores_at_day(day, projects):
     projects_ord = []
-    for project_name, project in projects:
+    for project_name, project in projects.items():
         score = weight(
-            project_name,
+            day,
             deadline=project['deadline'],
             score=project['score'],
             duration=project['num_days']
         )
         projects_ord.append((project_name, score))
-    return sorted(projects_ord, key=lambda p: p[1])
+    return list(filter(lambda item: item[1] > 0, sorted(projects_ord, key=lambda p: p[1], reverse=True)))
 
 
 def process(input_file_path, output_file_path):
@@ -84,7 +84,9 @@ def process(input_file_path, output_file_path):
             if not is_available:
                 can_all_do_it = False
         print(day_number)
-        for project_name, project in tqdm(projects_of_the_day.items(), mininterval=5):
+        for project_of_the_day in projects_of_the_day:
+            project_name, score = project_of_the_day
+            project = projects[project_name]
             project_contributors = []
             upgrade_skill_to_contributor = {}
             for skill_name, skill_level in project['skills_needed']:
