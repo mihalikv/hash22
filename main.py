@@ -5,8 +5,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 file_names = [
     # 'a_an_example.in',
-     'b_better_start_small.in',
-    # 'c_collaboration.in',
+     #'b_better_start_small.in',
+     'c_collaboration.in',
     # 'd_dense_schedule.in',
     # 'e_exceptional_skills.in',
     # 'f_find_great_mentors.in',
@@ -113,7 +113,7 @@ def process(input_file_path, output_file_path):
                         # is good for job
                         skill_was_assigned = True
                         project_contributors.append(name)
-                        project_skills[skill].append((skill_level, name))
+                        project_skills[skill_name].append((skill_level, name))
                         if has_mentor and mentor in upgrade_skill_to_contributor:
                             del upgrade_skill_to_contributor[mentor]
                         if (skills[skill_name] == skill_level or skills[skill_name] + 1 == skill_level) and skills[skill_name] < 10:
