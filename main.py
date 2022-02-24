@@ -20,7 +20,7 @@ def sign(value):
 
 
 def weight(day, deadline, score, duration):
-    return score
+    return score - sign(deadline - (day+duration))
 
 
 def get_scores_at_day(day, projects):
@@ -33,7 +33,7 @@ def get_scores_at_day(day, projects):
             duration=project['num_days']
         )
         projects_ord.append((project_name, score))
-    return sorted(projects_ord, key=lambda p: p[1], reverse=True)
+    return list(filter(lambda x: x[1] > 0, sorted(projects_ord, key=lambda p: p[1], reverse=True)))
 
 
 def process(input_file_path, output_file_path):
