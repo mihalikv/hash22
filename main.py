@@ -9,8 +9,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 file_names = [
     # 'a_an_example.in',
     # 'b_better_start_small.in',
-    'c_collaboration.in',
-    # 'd_dense_schedule.in',
+    # 'c_collaboration.in',
+    'd_dense_schedule.in',
     # 'e_exceptional_skills.in',
     # 'f_find_great_mentors.in',
 ]
@@ -36,7 +36,7 @@ def get_scores_at_day(day, projects):
             duration=project['num_days']
         )
         projects_ord.append((project_name, score))
-    return list(filter(lambda item: item[1] > 0, sorted(projects_ord, key=lambda p: p[1], reverse=True)))
+    return sorted(projects_ord, key=lambda p: p[1], reverse=True)
 
 
 def process(input_file_path, output_file_path):
@@ -84,6 +84,7 @@ def process(input_file_path, output_file_path):
             if not is_available:
                 can_all_do_it = False
         print(day_number)
+        print(len(projects_of_the_day))
         for project_of_the_day in projects_of_the_day:
             project_name, score = project_of_the_day
             project = projects[project_name]
@@ -116,9 +117,16 @@ def process(input_file_path, output_file_path):
         if len(projects_of_the_day) == 0:
             is_possible_continue = False
 
+        if len(ids_to_delete) == 0:
+            delays = [item['delay'] for item in contributors.values() if item['delay'] >= day_number]
+            min_delay = min(delays) if delays else 1
+            day_number = max(min_delay - day_number, day_number + 1)
+        else:
+            day_number += 1
+
         for id_to_delete in ids_to_delete:
             del projects[id_to_delete]
-        day_number += 1
+
 
     output_lines = []
     output_lines.append(f'{len(success_projects)}\n')
