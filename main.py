@@ -5,7 +5,14 @@ import pandas as pd
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-file_names = ['a_an_example.in']
+file_names = [
+    'a_an_example.in',
+    'b_better_start_small.in',
+    'c_collaboration.in',
+    'd_dense_schedule.in',
+    'e_exceptional_skills.in',
+    'f_find_great_mentors.in',
+]
 input_files = [os.path.join(dir_path, 'input', '{}.txt'.format(file_name)) for file_name in file_names]
 output_files = [os.path.join(dir_path, 'output', '{}.out'.format(file_name)) for file_name in file_names]
 
@@ -32,20 +39,20 @@ def process(input_file_path, output_file_path):
                 'score': int(score),
                 'deadline': int(deadline),
                 'num_roles': int(num_roles),
-                'skills_needed': {}
+                'skills_needed': []
             }
             for j in range(int(num_roles)):
                 line_index += 1
                 skill, skill_level = lines[line_index].split(' ')
-                projects[name]['skills_needed'][skill] = int(skill_level)
-        print(dict(contributors))
-        print(dict(projects))
+                projects[name]['skills_needed'].append((skill, int(skill_level)))
+        # print(dict(contributors))
+        # print(dict(projects))
     success_projects = {}
     for project_name, project in projects.items():
         project_contributors = []
-        for skill_name, skill_level in project['skills_needed'].items():
+        for skill_name, skill_level in project['skills_needed']:
             for name, skills in contributors.items():
-                if skill_name in skills and skills[skill_name] >= skill_level:
+                if skill_name in skills and skills[skill_name] >= skill_level and name not in project_contributors:
                     # is good for job
                     project_contributors.append(name)
                     break
