@@ -136,8 +136,9 @@ def process(input_file_path, output_file_path):
             # print(f'delays {delays}')
             if not delays:
                 is_possible_continue = False
-            min_delay = min(delays)
-            day_number = max(min_delay, day_number + 1)
+            else:
+                min_delay = min(delays)
+                day_number = max(min_delay, day_number + 1)
         else:
             print(f'ids_to_delete {ids_to_delete}')
             day_number += 1
