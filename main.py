@@ -104,19 +104,18 @@ def process(input_file_path, output_file_path):
                     skills = contributor_data['skills']
                     has_skill = skill_name in skills and skills[skill_name] >= skill_level
                     mentor = None
-                    for skill_level_mentor, mentor_name in project_skills[skill]:
+                    for skill_level_mentor, mentor_name in project_skills[skill_name]:
                         if skill_level <= skill_level_mentor:
-                            mentor = name
-                    # has_mentor = (skill_name in skills and skills[skill_name] == (skill_level - 1)) and mentor
-                    has_mentor = False
+                            mentor = mentor_name
+                    has_mentor = (skill_name in skills and skills[skill_name] == (skill_level - 1)) and bool(mentor)
                     not_in_project = name not in project_contributors
                     if (has_skill or has_mentor) and not_in_project and is_available:
                         # is good for job
                         skill_was_assigned = True
                         project_contributors.append(name)
                         project_skills[skill].append((skill_level, name))
-                        # if has_mentor and mentor in upgrade_skill_to_contributor:
-                        #     del upgrade_skill_to_contributor[mentor]
+                        if has_mentor and mentor in upgrade_skill_to_contributor:
+                            del upgrade_skill_to_contributor[mentor]
                         if (skills[skill_name] == skill_level or skills[skill_name] + 1 == skill_level) and skills[skill_name] < 10:
                             upgrade_skill_to_contributor[name] = skill_name
                         break
